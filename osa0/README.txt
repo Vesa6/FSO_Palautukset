@@ -8,5 +8,5 @@ https://github.com/Vesa6/FSO_Palautukset/blob/main/osa0/05.JPG
 
 06.
 https://github.com/Vesa6/FSO_Palautukset/blob/main/osa0/06.JPG
-![](https://github.com/Vesa6/FSO_Palautukset/blob/main/osa0/06.JPG)
+![](https://github.com/Vesa6/FSO_Palautukset/blob/main/osa0/06.JPEG)
 
