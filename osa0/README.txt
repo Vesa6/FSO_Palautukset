@@ -1,2 +1,2 @@
 
-![](04.JPG)
+![](exercises/04.JPG)
