@@ -1,6 +1,6 @@
 04.
 
-![image](https://raw.githubusercontent.com/Vesa6/FSO_Palautukset/main/osa0/04.JPG)
+![image](https://raw.githubusercontent.com/Vesa6/FSO_Palautukset/raw/main/osa0/04.JPG)
 
 
 05.
