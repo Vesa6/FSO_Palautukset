@@ -27,15 +27,15 @@ const Statistics = (props) => {
     if (good !== 0 || neutral !== 0 || bad !== 0) {
       
   return (
-
     <table>
-      <h2>statistics</h2>
+      <tbody>
       <StatisticsLine text="good" value={props.good} />
       <StatisticsLine text="neutral" value={props.neutral} />
       <StatisticsLine text="bad" value={props.bad} />
       <StatisticsLine text="all" value={props.good + props.neutral + props.bad} />
       <StatisticsLine text="average" value={average()} />
       <StatisticsLine text="positive" value={positive()} />
+      </tbody>
     </table>
   );
 
@@ -78,6 +78,7 @@ const App = () => {
     <button onClick={handleNeutralClick}>Neutral</button>
     <button onClick={handleBadClick}>Bad</button>
     <div>
+      <h2>statistics</h2>
     <Statistics good={good} neutral={neutral} bad={bad} />
     </div>
 
