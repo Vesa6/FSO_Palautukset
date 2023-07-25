@@ -14,18 +14,14 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [nameToSearch, setNewSearch] = useState('')
-  const [newId, setNewId] = useState(1)
   const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
-    console.log('Fethching people from server')
+    console.log('Getting people from server')
     Communication.getAll()
     .then(response => {
       console.log('promise fulfilled')
       setPersons(response)
-      //This fixes the problem of the id not being unique
-      //if deleting from halfway through the list.
-      setNewId(response.length + 1)
     })
   }, [])
 
@@ -43,7 +39,6 @@ const App = () => {
       Communication
         .update(changedPerson.id, changedPerson)
         .then(reply => {
-
         setPersons(persons.map(person => person.id !== changedPerson.id ? person : reply))
 
         setNewNumber('');
@@ -68,7 +63,6 @@ const App = () => {
     const nameObject = {
       name: newName,
       number: newNumber,
-      id: newId,
     }
 
     Communication
@@ -76,7 +70,6 @@ const App = () => {
     .then(response => {
       console.log('promise OK')
       setPersons(persons.concat(response))
-      setNewId(newId + 1)
       setNewNumber('')
       setNewName('')
 
@@ -86,11 +79,22 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null)
       }, 3000)
+      
+    }).catch(error => {
+      console.log(error.response.data)
+      setErrorMessage(error.response.data.error)
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 3000)
     })
   }
-
   
-  const shownPeople = persons.filter(person => person.name.toLowerCase().includes(nameToSearch.toLowerCase()))
+  const shownPeople = persons.filter(person => {
+    if (person.name) {
+      return person.name.toLowerCase().includes(nameToSearch.toLowerCase())
+    }
+    return false;
+  });
 
   const handleNameChange = (event) => {
     console.log(event.target.value)
@@ -98,7 +102,8 @@ const App = () => {
   }
 
   const handleDelete = (id) => {
-    if(window.confirm(`Are you sure you want to delete ${persons.find(person => person.id === id).name}? `) !== true) {
+    const toDelete = persons.find(person => person.id === id)
+    if(window.confirm(`Are you sure you want to delete ${toDelete.name}? `) !== true) {
       return;
     } 
     Communication.deletePerson(id).then(() => {
@@ -107,7 +112,7 @@ const App = () => {
       setPersons(filteredPeople)
 
       setErrorMessage(
-        `Deleted ${persons.find(person => person.id === id).name}`
+        `Deleted ${personToDelete.name}`
       )
       setTimeout(() => {
         setErrorMessage(null)
