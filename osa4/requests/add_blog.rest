@@ -1,9 +1,2 @@
-POST http://localhost:3003/api/blogs
-Content-type: application/json
-
-{
-    "title": "Igor's gaming blog",
-    "author": "Igor",
-    "url": "www.IgorsGamingBlog.com",
-    "likes": 500
-}
+DELETE http://localhost:3003/api/blogs/:3
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImxvZ2luRW5qb3llciIsImlkIjoiNjRjOTYwNDEwYzI2MTFjMDIzMDgxN2UzIiwiaWF0IjoxNjkwOTE4OTg1fQ.7zNVWZBP7DHq5ekFpO765lH3bIYA6IJvjr540POiUl4
