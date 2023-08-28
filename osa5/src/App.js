@@ -3,18 +3,17 @@ import Blog from './components/Blog'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import BlogForm from './components/BlogForm'
 import './App.css'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newBlog, setNewBlog] = useState('')
   const [showAll, setShowAll] = useState(true)
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+  const [blogAddVisible, setBlogAddVisible] = useState(false)
 
   useEffect(() => {
     blogService.getAll().then(blogs => {
@@ -31,47 +30,22 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: newBlog,
-      author: author,
-      url: url,
-      likes: 0
-    }
+  const addBlog = (blogObject) => {
 
     blogService
       .create(blogObject)
         .then(returnedBlog => {
         setBlogs(blogs.concat(returnedBlog))
-        setNewBlog('')
-        setAuthor('')
-        setUrl('')
+        // setNewBlog('')
+        // setAuthor('')
+        // setUrl('')
         
-        setErrorMessage(`a new blog ${newBlog} by ${author} added`)
+        setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
         setTimeout(() => {
         setErrorMessage(null)
       }
       , 3000)
       })
-  }
-
-  const handleBlogChange = (event) => {
-    const value = event.target.value;
-    const field = event.target.name;
-
-    // console.log(event.target.value)
-    // setNewBlog(event.target.value)
-
-    if (field === 'title') {
-      setNewBlog(value)
-    }
-    if (field === 'author') {
-      setAuthor(value)
-    }
-    if (field === 'url') {
-      setUrl(value)
-    }
   }
 
   const loginForm = () => (
@@ -98,41 +72,23 @@ const App = () => {
       </form>
   )
 
-  const blogForm = () => (
-    <form onSubmit={addBlog}>
-      <div>
-        title:
-        <input
-          name="title"
-          value={newBlog}
-          onChange={handleBlogChange}
-      />
-      </div>
-      <div>
-        author:
-        <input
-          name="author"
-          value={author}
-          onChange={handleBlogChange}
-        />
-      </div>
-      <div>
-        url:
-        <input
-          name="url"
-          value={url}
-          onChange={handleBlogChange}
-        />
-      </div>
-      <button type="submit">save</button>
-    </form>  
-  )
-
   const logoutForm = () => (
     <form onSubmit={handleLogout}>
       <button type="submit">logout</button>
     </form>
   )
+
+  const likeHandler = async (blog) => {
+    const updated = {
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: blog.likes + 1,
+    }
+
+    blogService
+      .update(updated)
+  }
 
   const handleLogout = (event) => {
     event.preventDefault()
@@ -169,8 +125,8 @@ const App = () => {
     }
   }
 
-  // Continue to figure out how to make login render conditionally, when user is logged in -> show login
-  // If not, show blogs.
+  const hideWhenVisible = { display: blogAddVisible ? 'none' : '' }
+  const showWhenVisible = { display: blogAddVisible ? '' : 'none' }
 
   return (
     <div>
@@ -178,15 +134,27 @@ const App = () => {
 
       <Notification className='error' message={errorMessage} />
 
-      {/* Only renders if the user is not null */}
-      {user && blogs.map(blog => <Blog key={blog.id} blog={blog} />)}
+      {/* Only renders if the user is not null
+          Pass the likehandler to blog*/}
+      {user && blogs.map(blog => <Blog key={blog.id} blog={blog} liked={() => likeHandler(blog)} />)}
 
       {!user && loginForm()} 
       {user && <div>
+        
+      <div style={hideWhenVisible}>
+        {/* These empty paragraphs are here for padding */}
+        <p></p>
+      <button onClick={() => setBlogAddVisible(true)}>New blog</button>
+      </div>
+
+      <div style={showWhenVisible}>
+        {/* These empty paragraphs are here for padding */}
+        <p></p>
+      <button onClick={() => setBlogAddVisible(false)}>Cancel</button> 
+      <BlogForm createBlog={addBlog} />
+      </div>
        <p>{user.name} logged in</p>
-         {blogForm()}
-       <p></p>
-        {logoutForm()}
+       <p>{logoutForm()}</p>  
       </div>
     }
     </div>
