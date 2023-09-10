@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const BlogForm = ({ createBlog }) => {
   const [newBlogTitle, setNewBlogTitle] = useState('')
@@ -19,6 +20,11 @@ const BlogForm = ({ createBlog }) => {
     setUrl('')
   }
 
+  // This requires the prop to be a function (and not undefined)
+  BlogForm.propTypes = {
+    createBlog: PropTypes.func.isRequired
+  }
+
   return (
     <div>
       <h2>Create a new blog</h2>
@@ -26,7 +32,7 @@ const BlogForm = ({ createBlog }) => {
       <form onSubmit={addBlog}>
         <div>
           title:
-          <input
+          <input className='title'
             name="title"
             value={newBlogTitle}
             onChange={event => setNewBlogTitle(event.target.value)}
@@ -34,7 +40,7 @@ const BlogForm = ({ createBlog }) => {
         </div>
         <div>
           author:
-          <input
+          <input className='author'
             name="author"
             value={author}
             onChange={event => setAuthor(event.target.value)}
@@ -42,7 +48,7 @@ const BlogForm = ({ createBlog }) => {
         </div>
         <div>
           url:
-          <input
+          <input className='url'
             name="url"
             value={url}
             onChange={event => setUrl(event.target.value)}

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
-const Blog = ({blog}) => {
-  
+const Blog = ({ blog, liked, deleted, loggedUser }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -18,23 +17,29 @@ const Blog = ({blog}) => {
 
   const visible = blogDetailsVisible ? 'hide' : 'view'
 
+  // spans are used for inline classNames because <p> makes a new line.
   return(
     // Sets some nice borders around each blog to make it more readable
-  <div style = {blogStyle}>
-    {blog.title} {blog.author}  
-    <button onClick={() => changeVisibility()}>{visible}</button>
-    {blogDetailsVisible && (
+    <div style = {blogStyle} className="blog-maindiv">
+      {blog.title} {blog.author}
+      <button onClick={() => changeVisibility()}>{visible}</button>
+      {blogDetailsVisible && (
         <div>
-          {blog.url}
+          <span className="url">{blog.url}</span>
           <br />
-          likes {blog.likes}
-          <button onClick={blog.liked}>like</button>
+          <span className="likes">likes {blog.likes}</span>
           <br />
-          {blog.author}     
+          <button onClick={() => liked(blog)}>like</button>
+          <br />
+          {blog.author}
+          {blog.user?.username === loggedUser?.username && (
+            <p><button onClick={() => deleted(blog)}>delete</button></p>
+          )}
         </div>
       )}
     </div>
   )
 }
+
 
 export default Blog

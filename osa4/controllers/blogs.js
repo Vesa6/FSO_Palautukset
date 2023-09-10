@@ -88,15 +88,26 @@ blogsRouter.delete('/:id', userWare, async (request, response, next) => {
 blogsRouter.put('/:id', userWare, async (request, response, next) => {
   const body = request.body
 
-  const blog = {
-    title: body.title,
-    author: body.author,
-    url: body.url,
-    likes: body.likes
+  const blog = await Blog.findById(request.params.id)
+
+  // const blog = {
+  //   title: body.title,
+  //   author: body.author,
+  //   url: body.url,
+  //   likes: body.likes
+  // }
+
+  if (body.title !== undefined || body.author !== undefined || body.url !== undefined || body.likes !== undefined) {
+    blog.title = body.title
+    blog.author = body.author
+    blog.url = body.url
+    blog.likes = body.likes
+  } else {
+    return response.status(400).json({ error: 'incomplete blog (all fields not filled)' })
   }
 
   try {
-    const update = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
+    const update = await blog.save()
     response.json(update)
   } catch (error) {
     next(error)

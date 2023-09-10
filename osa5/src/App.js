@@ -4,6 +4,7 @@ import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import BlogForm from './components/BlogForm'
+
 import './App.css'
 
 const App = () => {
@@ -18,7 +19,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs => {
       setBlogs( blogs )
-    })  
+    })
   }, [])
 
   useEffect(() => {
@@ -30,29 +31,27 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = (blogObject) => {
-
-    blogService
-      .create(blogObject)
-        .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
-        // setNewBlog('')
-        // setAuthor('')
-        // setUrl('')
-        
-        setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
-        setTimeout(() => {
+  const addBlog = async (blogObject) => {
+    try {
+      const returnedBlog = await blogService.create(blogObject)
+      setBlogs(prevBlogs => prevBlogs.concat(returnedBlog))
+      // setNewBlog('');
+      // setAuthor('');
+      // setUrl('');
+      setErrorMessage(`a new blog ${blogObject.title} by ${blogObject.author} added`)
+      setTimeout(() => {
         setErrorMessage(null)
-      }
-      , 3000)
-      })
+      }, 3000)
+    } catch (error) {
+      console.error('Error: ', error)
+    }
   }
 
   const loginForm = () => (
     <form onSubmit={handleLogin}>
       <div>
         username
-          <input
+        <input
           type="text"
           value={username}
           name="Username"
@@ -61,7 +60,7 @@ const App = () => {
       </div>
       <div>
         password
-          <input
+        <input
           type="password"
           value={password}
           name="Password"
@@ -69,7 +68,7 @@ const App = () => {
         />
       </div>
       <button type="submit">login</button>
-      </form>
+    </form>
   )
 
   const logoutForm = () => (
@@ -78,16 +77,47 @@ const App = () => {
     </form>
   )
 
+  const deletionHandler = async (blog) => {
+    try {
+
+      if(window.confirm(`Are you sure you want to delete ${blog.title} by ${blog.author}?`))
+      {
+        await blogService
+          .deletion(blog.id)
+        setBlogs(blogs.filter(changed => changed.id !== blog.id))
+      } else {
+        return
+      }
+    } catch (exception) {
+      setErrorMessage('Could not delete blog')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }
+      , 5000)
+    }
+  }
+
   const likeHandler = async (blog) => {
+    //console.log("likeHandler called!")
     const updated = {
+      id: blog.id,
       title: blog.title,
       author: blog.author,
       url: blog.url,
       likes: blog.likes + 1,
     }
 
-    blogService
-      .update(updated)
+    try {
+      await blogService
+        .update(blog.id, updated)
+      setBlogs(blogs.map(changed => changed.id === blog.id ? updated : changed))
+    } catch (exception) {
+      setErrorMessage('Could not update blog')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }
+      , 5000)
+    }
   }
 
   const handleLogout = (event) => {
@@ -128,35 +158,38 @@ const App = () => {
   const hideWhenVisible = { display: blogAddVisible ? 'none' : '' }
   const showWhenVisible = { display: blogAddVisible ? '' : 'none' }
 
+  // This basically creates a copy array of blogs
+  // ... copies everything from blogs to new array
+  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
+
   return (
     <div>
       <h2>blogs</h2>
 
       <Notification className='error' message={errorMessage} />
 
-      {/* Only renders if the user is not null
-          Pass the likehandler to blog*/}
-      {user && blogs.map(blog => <Blog key={blog.id} blog={blog} liked={() => likeHandler(blog)} />)}
+      {/* Only renders if the user is not null */}
+      {user && sortedBlogs.map(blog =>
+        <Blog key={blog.id} blog={blog} liked={likeHandler} deleted={deletionHandler} loggedUser={user} />)}
 
-      {!user && loginForm()} 
+      {!user && loginForm()}
       {user && <div>
-        
-      <div style={hideWhenVisible}>
-        {/* These empty paragraphs are here for padding */}
-        <p></p>
-      <button onClick={() => setBlogAddVisible(true)}>New blog</button>
-      </div>
+        <div style={hideWhenVisible}>
+          {/* These empty paragraphs are here for padding */}
+          <p></p>
+          <button onClick={() => setBlogAddVisible(true)}>New blog</button>
+        </div>
 
-      <div style={showWhenVisible}>
-        {/* These empty paragraphs are here for padding */}
-        <p></p>
-      <button onClick={() => setBlogAddVisible(false)}>Cancel</button> 
-      <BlogForm createBlog={addBlog} />
+        <div style={showWhenVisible}>
+          {/* These empty paragraphs are here for padding */}
+          <p></p>
+          <button onClick={() => setBlogAddVisible(false)}>Cancel</button>
+          <BlogForm createBlog={addBlog} />
+        </div>
+        <p>{user.name} logged in</p>
+        {logoutForm()}
       </div>
-       <p>{user.name} logged in</p>
-       <p>{logoutForm()}</p>  
-      </div>
-    }
+      }
     </div>
   )
 }
