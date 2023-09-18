@@ -51,7 +51,7 @@ const App = () => {
     <form onSubmit={handleLogin}>
       <div>
         username
-        <input
+        <input className="usernameField"
           type="text"
           value={username}
           name="Username"
@@ -60,7 +60,7 @@ const App = () => {
       </div>
       <div>
         password
-        <input
+        <input className="passwordField"
           type="password"
           value={password}
           name="Password"
@@ -89,7 +89,7 @@ const App = () => {
         return
       }
     } catch (exception) {
-      setErrorMessage('Could not delete blog')
+      setErrorMessage(exception)
       setTimeout(() => {
         setErrorMessage(null)
       }
@@ -98,27 +98,25 @@ const App = () => {
   }
 
   const likeHandler = async (blog) => {
-    //console.log("likeHandler called!")
-    const updated = {
-      id: blog.id,
-      title: blog.title,
-      author: blog.author,
-      url: blog.url,
-      likes: blog.likes + 1,
+    console.log('Sent from likehandler:', blog)
+    const updatedBlog = {
+      // Spreads the blog object and adds 1 to the likes
+      ...blog,
+      likes: blog.likes + 1
     }
 
     try {
-      await blogService
-        .update(blog.id, updated)
-      setBlogs(blogs.map(changed => changed.id === blog.id ? updated : changed))
+      const returnedBlog = await blogService.update(blog.id, updatedBlog)
+      setBlogs(blogs.map(changed => changed.id === blog.id ? { ...returnedBlog, user: blog.user } : changed))
+      //console.log('Updated array:', blogs.map(changed => changed.id === blog.id ? { ...returnedBlog, user: blog.user } : changed))
     } catch (exception) {
       setErrorMessage('Could not update blog')
       setTimeout(() => {
         setErrorMessage(null)
-      }
-      , 5000)
+      }, 5000)
     }
   }
+
 
   const handleLogout = (event) => {
     event.preventDefault()
@@ -169,8 +167,10 @@ const App = () => {
       <Notification className='error' message={errorMessage} />
 
       {/* Only renders if the user is not null */}
-      {user && sortedBlogs.map(blog =>
-        <Blog key={blog.id} blog={blog} liked={likeHandler} deleted={deletionHandler} loggedUser={user} />)}
+      {user && sortedBlogs.map(blog => {
+        // console.log('Rendering blog:', blog)
+        return <Blog key={blog.id} blog={blog} liked={likeHandler} deleted={deletionHandler} loggedUser={user} blogUser={blog.user} />
+      })}
 
       {!user && loginForm()}
       {user && <div>
