@@ -1,3 +1,5 @@
+import { createSlice } from '@reduxjs/toolkit'
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -9,6 +11,7 @@ const anecdotesAtStart = [
 
 export const getId = () => (100000 * Math.random()).toFixed(0)
 
+// This needs to be up here for map method below
 const asObject = (anecdote) => {
   return {
     content: anecdote,
@@ -17,48 +20,38 @@ const asObject = (anecdote) => {
   }
 }
 
-export const voteAnecdoteAction = (id) => {
-  return {
-    type: 'VOTE',
-    data: { id }
-  }
-}
-
-export const createAnecdoteAction = (anec) => {
-  const newAnec = asObject(anec)
-
-  return {
-    type: 'ADD',
-    data: newAnec,
-  };  
-}
-
 const initialState = anecdotesAtStart.map(asObject)
 
-const reducer = (state = initialState, action) => {
-  console.log('state now: ', state)
-  console.log('action', action)
-
-  let stateToReturn = state;
-
-  if(action.type == 'VOTE')
-  {
-    const idOfAnecdote = action.data.id
-    const anec = state.find(a => a.id === idOfAnecdote)
-    const changedAnec = { ...anec, votes: anec.votes + 1 }
-    stateToReturn = state.map(a => a.id !== idOfAnecdote ? a : changedAnec)
+const anecdoteSlice = createSlice({
+  
+  name: 'anecdotes',
+  initialState,
+  reducers: {
+    voteAnecdoteAction: (state, action) => {
+      // console.log(action)
+      const idOfAnecdote = action.payload.id
+      const anec = state.find(a => a.id === idOfAnecdote)
+      // console.log(idOfAnecdote)
+      if (anec) {
+        const changedAnec = { ...anec, votes: anec.votes + 1 }
+        const newState = state.map(a => a.id !== idOfAnecdote ? a : changedAnec)
+        
+        // Sorts in place
+        newState.sort((a, b) => b.votes - a.votes)
+        return newState
+      }
+    },
+    createAnecdoteAction: (state, action) => {
+      const newAnecdoteObj = {
+        content: action.payload,
+        id: getId(),
+        votes: 0
+      }
+      state.push(newAnecdoteObj)
+      state.sort((a, b) => b.votes - a.votes);
+    }
   }
+})
 
-  else if (action.type === 'ADD')
-  {
-    stateToReturn = [...state, action.data]
-  }
-
-  // Sorts in place
-  stateToReturn.sort((a, b) => b.votes - a.votes)
-
-  return stateToReturn
-}
-
-
-export default reducer
+export const { voteAnecdoteAction, createAnecdoteAction } = anecdoteSlice.actions
+export default anecdoteSlice.reducer
