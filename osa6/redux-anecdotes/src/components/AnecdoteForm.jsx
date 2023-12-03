@@ -1,5 +1,6 @@
 import { useDispatch } from 'react-redux';
 import { createAnecdoteAction } from '../reducers/anecdoteReducer';
+import { newNotificationAction, removeNotificationAction } from '../reducers/notificationReducer'
 
 const AnecdoteForm = () => {
   const dispatch = useDispatch()
@@ -14,6 +15,12 @@ const AnecdoteForm = () => {
     // }
     event.target.anecdote.value = ''
     dispatch(createAnecdoteAction(contentOfAnecdote))
+    dispatch(newNotificationAction('You created anecdote ' + '"' + contentOfAnecdote + '"'))
+    // This could probably be linked so that all new notifications last 5000
+    // For now it is here so the duration can be changed wherever it is used
+    setTimeout(() => {
+      dispatch(removeNotificationAction())
+    }, 5000)
   }
 
   return(

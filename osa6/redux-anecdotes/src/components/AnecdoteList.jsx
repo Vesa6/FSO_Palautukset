@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { voteAnecdoteAction } from '../reducers/anecdoteReducer'
+import { newNotificationAction, removeNotificationAction } from '../reducers/notificationReducer'
 
 const AnecdoteList = () => {
   const filter = useSelector(state => state.filter)
@@ -9,6 +10,13 @@ const AnecdoteList = () => {
 
   const vote = (id) => {
     dispatch(voteAnecdoteAction({id: id}))
+    const anecdote = anecdotes.find(anecdote => anecdote.id === id).content
+    dispatch(newNotificationAction('You voted for ' + '"' + anecdote + '"'))
+    // This could probably be linked so that all new notifications last 5000
+    // For now it is here so the duration can be changed wherever it is used
+    setTimeout(() => {
+      dispatch(removeNotificationAction())
+    }, 5000)
   }
 
   return (
