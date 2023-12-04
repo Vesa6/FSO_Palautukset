@@ -1,3 +1,3 @@
 # FSO_Palautukset
 
-FSO weeks 1-5
+FSO weeks 1-7
